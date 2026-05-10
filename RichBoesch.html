@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rich Boesch — Integration Architect & Partner Solutions</title>
+<style>
+  /* =========================================================
+     THEME SYSTEM
+  ========================================================= */
+  :root {
+    --bg:        #0f1117;
+    --bg2:       #181c27;
+    --bg3:       #1e2333;
+    --border:    rgba(255,255,255,0.08);
+    --text:      #e8eaf0;
+    --text2:     #9aa3b8;
+    --accent:    #6c8fff;
+    --accent2:   #a78bfa;
+    --pill-bg:   rgba(108,143,255,0.12);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --panel-bg:  #12161f;
+    --node-line: rgba(108,143,255,0.3);
+  }
+  [data-theme="arctic"] {
+    --bg:        #f0f4f8;
+    --bg2:       #ffffff;
+    --bg3:       #e4eaf2;
+    --border:    rgba(0,0,0,0.08);
+    --text:      #1a2035;
+    --text2:     #5a6680;
+    --accent:    #2563eb;
+    --accent2:   #7c3aed;
+    --pill-bg:   rgba(37,99,235,0.1);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    --panel-bg:  #edf1f7;
+    --node-line: rgba(37,99,235,0.25);
+  }
+  [data-theme="ember"] {
+    --bg:        #100c08;
+    --bg2:       #1a1210;
+    --bg3:       #221815;
+    --border:    rgba(255,160,80,0.12);
+    --text:      #f5e6d8;
+    --text2:     #b8987a;
+    --accent:    #f97316;
+    --accent2:   #fb923c;
+    --pill-bg:   rgba(249,115,22,0.12);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --panel-bg:  #0d0a08;
+    --node-line: rgba(249,115,22,0.3);
+  }
+  [data-theme="forest"] {
+    --bg:        #07110a;
+    --bg2:       #0d1a10;
+    --bg3:       #122015;
+    --border:    rgba(80,200,120,0.1);
+    --text:      #d8f0e0;
+    --text2:     #7aad88;
+    --accent:    #22c55e;
+    --accent2:   #4ade80;
+    --pill-bg:   rgba(34,197,94,0.12);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --panel-bg:  #050e07;
+    --node-line: rgba(34,197,94,0.25);
+  }
+  [data-theme="rosegold"] {
+    --bg:        #fdf6f0;
+    --bg2:       #ffffff;
+    --bg3:       #f5e8e0;
+    --border:    rgba(180,100,80,0.12);
+    --text:      #2d1a14;
+    --text2:     #8a5a50;
+    --accent:    #c2614a;
+    --accent2:   #e07a5f;
+    --pill-bg:   rgba(194,97,74,0.1);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    --panel-bg:  #f7ede6;
+    --node-line: rgba(194,97,74,0.25);
+  }
+  [data-theme="slate"] {
+    --bg:        #1a1d23;
+    --bg2:       #22262f;
+    --bg3:       #2a2f3a;
+    --border:    rgba(255,255,255,0.07);
+    --text:      #dde1ea;
+    --text2:     #8890a4;
+    --accent:    #64748b;
+    --accent2:   #94a3b8;
+    --pill-bg:   rgba(100,116,139,0.15);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --panel-bg:  #15181e;
+    --node-line: rgba(148,163,184,0.2);
+  }
+  [data-theme="violet"] {
+    --bg:        #0d0a1a;
+    --bg2:       #140f26;
+    --bg3:       #1c1730;
+    --border:    rgba(167,139,250,0.12);
+    --text:      #ede8ff;
+    --text2:     #9d8ec7;
+    --accent:    #a78bfa;
+    --accent2:   #c4b5fd;
+    --pill-bg:   rgba(167,139,250,0.12);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    --panel-bg:  #090714;
+    --node-line: rgba(167,139,250,0.3);
+  }
+
+  /* =========================================================
+     RESET & BASE
+  ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* =========================================================
+     LAYOUT
+  ========================================================= */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+  /* Side nav */
+  .sidenav {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0 24px;
+    transition: background 0.3s, border-color 0.3s;
+    z-index: 10;
+  }
+  .sidenav-identity {
+    padding: 0 24px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidenav-identity .name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .sidenav-identity .title {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .sidenav-identity .avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+  }
+  .nav-section { padding: 20px 0 0; }
+  .nav-section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text2);
+    padding: 0 24px 8px;
+  }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    font-size: 0.85rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .nav-link:hover, .nav-link.active {
+    color: var(--accent);
+    background: var(--pill-bg);
+    border-left-color: var(--accent);
+  }
+  .nav-link svg { opacity: 0.7; flex-shrink: 0; }
+  .sidenav-footer {
+    margin-top: auto;
+    padding: 20px 24px 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text2);
+  }
+  .contact-item a { color: var(--text2); }
+  .contact-item a:hover { color: var(--accent); text-decoration: none; }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  /* =========================================================
+     THEME PICKER
+  ========================================================= */
+  .theme-bar {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 6px 10px;
+    z-index: 100;
+    box-shadow: var(--card-shadow);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .theme-bar-label {
+    font-size: 0.68rem;
+    color: var(--text2);
+    margin-right: 2px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .theme-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .theme-swatch:hover { transform: scale(1.2); }
+  .theme-swatch.active { border-color: var(--text); }
+  .theme-swatch[data-t="midnight"]  { background: linear-gradient(135deg, #0f1117, #6c8fff); }
+  .theme-swatch[data-t="arctic"]    { background: linear-gradient(135deg, #f0f4f8, #2563eb); }
+  .theme-swatch[data-t="ember"]     { background: linear-gradient(135deg, #100c08, #f97316); }
+  .theme-swatch[data-t="forest"]    { background: linear-gradient(135deg, #07110a, #22c55e); }
+  .theme-swatch[data-t="rosegold"]  { background: linear-gradient(135deg, #fdf6f0, #c2614a); }
+  .theme-swatch[data-t="slate"]     { background: linear-gradient(135deg, #1a1d23, #94a3b8); }
+  .theme-swatch[data-t="violet"]    { background: linear-gradient(135deg, #0d0a1a, #a78bfa); }
+  .theme-swatch-tooltip {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 0.65rem;
+    padding: 3px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    border: 1px solid var(--border);
+  }
+  .theme-swatch:hover .theme-swatch-tooltip { opacity: 1; }
+
+  /* =========================================================
+     HERO
+  ========================================================= */
+  .hero {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 64px 56px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--text2);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pill {
+    background: var(--pill-bg);
+    color: var(--accent);
+    border: 1px solid rgba(108,143,255,0.2);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 36px;
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+  .stat { display: flex; flex-direction: column; }
+  .stat-num {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--text2);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+  /* =========================================================
+     SECTIONS
+  ========================================================= */
+  .section {
+    padding: 52px 56px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--pill-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--text);
+  }
+  .section-subtitle {
+    font-size: 0.82rem;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  /* =========================================================
+     EXPERIENCE CARDS
+  ========================================================= */
+  .exp-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .exp-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 26px;
+    display: flex;
+    gap: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .exp-card::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 3px 0 0 3px;
+  }
+  .exp-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    box-shadow: var(--card-shadow);
+    transform: translateY(-1px);
+  }
+  .exp-card:hover::after { opacity: 1; }
+  .exp-card.current {
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    background: color-mix(in srgb, var(--accent) 4%, var(--bg2));
+  }
+  .exp-card.current::after { opacity: 1; }
+  .company-logo-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #f0f2f4;
+    border: 1px solid rgba(0,0,0,0.09);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.5px;
+  }
+  .company-logo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 6px;
+  }
+  .exp-body { flex: 1; min-width: 0; }
+  .exp-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .exp-role {
+    font-size: 0.97rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.2px;
+  }
+  .exp-company {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 1px;
+  }
+  .exp-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .exp-dates {
+    font-size: 0.75rem;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+  .current-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    color: var(--accent);
+    border-radius: 20px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    text-transform: uppercase;
+  }
+  .exp-bullets {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .exp-bullet {
+    font-size: 0.82rem;
+    color: var(--text2);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .exp-bullet::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .exp-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .exp-tag {
+    font-size: 0.7rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+  .view-detail-hint {
+    font-size: 0.72rem;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    opacity: 0.7;
+  }
+
+  /* =========================================================
+     SKILLS SECTION
+  ========================================================= */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .skill-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+  .skill-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .skill-category {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .skill-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text2);
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .skill-item:last-child { border-bottom: none; }
+  .skill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  /* =========================================================
+     ACHIEVEMENTS
+  ========================================================= */
+  .achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .achievement-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .achievement-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .achievement-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    transform: translateY(-2px);
+  }
+  .achievement-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--pill-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .achievement-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .achievement-body {
+    font-size: 0.8rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* =========================================================
+     EDUCATION
+  ========================================================= */
+  .edu-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .edu-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: #f0f2f4;
+    border: 1px solid rgba(0,0,0,0.09);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .edu-school { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .edu-degree { font-size: 0.82rem; color: var(--text2); margin-top: 3px; }
+
+  /* =========================================================
+     COMPANY DETAIL PANEL (Overlay)
+  ========================================================= */
+  .panel-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    backdrop-filter: blur(3px);
+  }
+  .panel-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .detail-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(580px, 95vw);
+    background: var(--panel-bg);
+    border-left: 1px solid var(--border);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .detail-panel.open { transform: translateX(0); }
+  .panel-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text2);
+    transition: background 0.15s, color 0.15s;
+    z-index: 10;
+  }
+  .panel-close:hover { background: var(--pill-bg); color: var(--accent); }
+  .panel-header {
+    padding: 36px 36px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .panel-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .panel-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    background: #f0f2f4;
+    border: 1px solid rgba(0,0,0,0.09);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .panel-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 8px;
+  }
+  .panel-company-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .panel-company-sector {
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin-top: 3px;
+  }
+  .panel-role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--pill-bg);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  .panel-dates-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+  }
+  .panel-body { padding: 28px 36px; flex: 1; }
+  .panel-desc {
+    font-size: 0.87rem;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .panel-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 14px;
+  }
+
+  /* Integration Map (visual node graph) */
+  .integration-map {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+    min-height: 200px;
+  }
+  .map-svg {
+    width: 100%;
+    overflow: visible;
+    display: block;
+  }
+  .map-node-center circle { fill: var(--accent); }
+  .map-node-center text { fill: #fff; font-weight: 700; }
+  .map-node-outer rect { fill: var(--bg3); stroke: var(--border); stroke-width: 1; rx: 6; }
+  .map-node-outer text { fill: var(--text2); font-size: 10px; }
+  .map-edge { stroke: var(--node-line); stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+
+  /* Impact items */
+  .impact-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .impact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .impact-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--pill-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  /* Tech stack in panel */
+  .tech-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px; }
+  .tech-pill {
+    font-size: 0.74rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 4px 11px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  /* =========================================================
+     RESPONSIVE
+  ========================================================= */
+  @media (max-width: 860px) {
+    .sidenav { display: none; }
+    .hero, .section { padding: 36px 24px; }
+    .hero-stats { gap: 20px; }
+    .theme-bar { top: 12px; right: 12px; }
+  }
+  @media (max-width: 600px) {
+    .achievements-grid { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .exp-top { flex-direction: column; }
+    .hero h1 { font-size: 1.9rem; }
+  }
+
+  /* =========================================================
+     COMPANY LINKS & PANEL WEBSITE BUTTON
+  ========================================================= */
+  .company-link {
+    color: inherit;
+    text-decoration: none;
+  }
+  .company-link:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+  }
+  .panel-website-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--pill-bg);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .panel-website-btn:hover {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    text-decoration: none;
+  }
+
+  /* =========================================================
+     SCROLLBAR
+  ========================================================= */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent) 50%, var(--bg3)); }
+</style>
+</head>
+<body data-theme="arctic">
+
+<!-- ===== THEME PICKER ===== -->
+<div class="theme-bar">
+  <span class="theme-bar-label">Theme</span>
+  <div class="theme-swatch" data-t="midnight" title="Midnight" onclick="setTheme('midnight')">
+    <span class="theme-swatch-tooltip">Midnight</span>
+  </div>
+  <div class="theme-swatch active" data-t="arctic" title="Arctic" onclick="setTheme('arctic')">
+    <span class="theme-swatch-tooltip">Arctic</span>
+  </div>
+  <div class="theme-swatch" data-t="ember" title="Ember" onclick="setTheme('ember')">
+    <span class="theme-swatch-tooltip">Ember</span>
+  </div>
+  <div class="theme-swatch" data-t="forest" title="Forest" onclick="setTheme('forest')">
+    <span class="theme-swatch-tooltip">Forest</span>
+  </div>
+  <div class="theme-swatch" data-t="rosegold" title="Rose Gold" onclick="setTheme('rosegold')">
+    <span class="theme-swatch-tooltip">Rose Gold</span>
+  </div>
+  <div class="theme-swatch" data-t="slate" title="Slate" onclick="setTheme('slate')">
+    <span class="theme-swatch-tooltip">Slate</span>
+  </div>
+  <div class="theme-swatch" data-t="violet" title="Violet" onclick="setTheme('violet')">
+    <span class="theme-swatch-tooltip">Violet</span>
+  </div>
+</div>
+
+<!-- ===== LAYOUT ===== -->
+<div class="layout">
+
+  <!-- SIDE NAV -->
+  <nav class="sidenav">
+    <div class="sidenav-identity">
+      <div class="avatar">RB</div>
+      <div class="name">Rich Boesch</div>
+      <div class="title">API Integration Lead &<br>Partner Solutions Architect</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Navigation</div>
+      <a class="nav-link active" href="#about" onclick="scrollTo('about')">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        About
+      </a>
+      <a class="nav-link" href="#experience" onclick="scrollTo('experience')">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Experience
+      </a>
+      <a class="nav-link" href="#achievements" onclick="scrollTo('achievements')">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Achievements
+      </a>
+      <a class="nav-link" href="#skills" onclick="scrollTo('skills')">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Skills
+      </a>
+      <a class="nav-link" href="#education" onclick="scrollTo('education')">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Education
+      </a>
+    </div>
+    <div class="sidenav-footer">
+      <div class="contact-item">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <a href="mailto:richard.boesch@gmail.com">richard.boesch@gmail.com</a>
+      </div>
+      <div class="contact-item">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        <a href="https://linkedin.com/in/rboesch" target="_blank">linkedin.com/in/rboesch</a>
+      </div>
+      <div class="contact-item">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>Folsom, CA</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero" id="about">
+      <div class="hero-eyebrow">Integration Architect & Partner Solutions Lead</div>
+      <h1>Rich <span>Boesch</span></h1>
+      <p class="hero-sub">
+        18+ years building integration solutions across fintech, lending, and financial services.
+        Known for turning complex platform ecosystems into clean API patterns—and making sure
+        partners actually go live.
+      </p>
+      <div class="hero-pills">
+        <span class="pill">REST & SOAP APIs</span>
+        <span class="pill">Integration Architecture</span>
+        <span class="pill">Partner Enablement</span>
+        <span class="pill">API Documentation</span>
+        <span class="pill">Loan Origination Systems</span>
+        <span class="pill">OAuth / Webhooks</span>
+        <span class="pill">Technical Leadership</span>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">18+</span>
+          <span class="stat-label">Years in<br>Integration</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">100+</span>
+          <span class="stat-label">Financial Institutions<br>Integrated</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">6</span>
+          <span class="stat-label">Companies<br>& Domains</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">50+</span>
+          <span class="stat-label">Banking Partners<br>at Intuit</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="section" id="experience">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" color="var(--accent)"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </div>
+        <div>
+          <div class="section-title">Experience</div>
+          <div class="section-subtitle">Click any company for a detailed integration map</div>
+        </div>
+      </div>
+
+      <div class="exp-grid">
+
+        <!-- Polly -->
+        <div class="exp-card current" onclick="openPanel('polly')">
+          <div class="company-logo-wrap">
+            <img src="logo-polly.png" alt="Polly" onerror="this.parentNode.innerHTML='<span style=\'color:var(--accent)\'>PP</span>'">
+          </div>
+          <div class="exp-body">
+            <div class="exp-top">
+              <div>
+                <div class="exp-role">API Integration & Documentation Lead</div>
+                <div class="exp-company"><a href="https://polly.io/" target="_blank" rel="noopener" class="company-link" onclick="event.stopPropagation()">Polly (PPE)</a></div>
+              </div>
+              <div class="exp-meta">
+                <span class="current-badge">Current</span>
+                <span class="exp-dates">Sept 2025 – Present</span>
+              </div>
+            </div>
+            <div class="exp-bullets">
+              <div class="exp-bullet">Leading integrations of POS, LOS, CRM, and customer systems into Polly's platform</div>
+              <div class="exp-bullet">Building and maintaining API documentation to reduce integration friction for partners</div>
+              <div class="exp-bullet">Establishing technical standards for third-party platform connections</div>
+            </div>
+            <div class="exp-tags">
+              <span class="exp-tag">API Docs</span>
+              <span class="exp-tag">POS/LOS</span>
+              <span class="exp-tag">Integration Standards</span>
+              <span class="exp-tag">Mortgage Tech</span>
+            </div>
+            <div class="view-detail-hint">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Click to view integration map
+            </div>
+          </div>
+        </div>
+
+        <!-- PayNearMe -->
+        <div class="exp-card" onclick="openPanel('paynearme')">
+          <div class="company-logo-wrap">
+            <img src="logo-paynearme.png" alt="PayNearMe" onerror="this.parentNode.innerHTML='<span style=\'color:var(--accent)\'>PNM</span>'">
+          </div>
+          <div class="exp-body">
+            <div class="exp-top">
+              <div>
+                <div class="exp-role">Internal Solutions Consultant</div>
+                <div class="exp-company"><a href="https://home.paynearme.com/" target="_blank" rel="noopener" class="company-link" onclick="event.stopPropagation()">PayNearMe</a></div>
+              </div>
+              <div class="exp-meta">
+                <span class="exp-dates">Jan 2025 – Sept 2025</span>
+              </div>
+            </div>
+            <div class="exp-bullets">
+              <div class="exp-bullet">Evaluated third-party platforms to modernize internal employee onboarding workflows</div>
+              <div class="exp-bullet">Partnered with HR and IT to align technical workflows with business needs</div>
+            </div>
+            <div class="exp-tags">
+              <span class="exp-tag">MuleSoft</span>
+              <span class="exp-tag">Workflow Design</span>
+              <span class="exp-tag">Payments</span>
+            </div>
+            <div class="view-detail-hint">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Click to view integration map
+            </div>
+          </div>
+        </div>
+
+        <!-- One Inc -->
+        <div class="exp-card" onclick="openPanel('oneinc')">
+          <div class="company-logo-wrap">
+            <img src="logo-oneinc.png" alt="One Inc" onerror="this.parentNode.innerHTML='<span style=\'color:var(--accent)\'>1</span>'">
+          </div>
+          <div class="exp-body">
+            <div class="exp-top">
+              <div>
+                <div class="exp-role">Technical Integration Lead</div>
+                <div class="exp-company"><a href="https://www.oneinc.com/" target="_blank" rel="noopener" class="company-link" onclick="event.stopPropagation()">One Incorporated</a></div>
+              </div>
+              <div class="exp-meta">
+                <span class="exp-dates">Jan 2024 – Jun 2024</span>
+              </div>
+            </div>
+            <div class="exp-bullets">
+              <div class="exp-bullet">Built strategy and roadmap for new partner solutions division</div>
+              <div class="exp-bullet">Evaluated insurance platform capabilities for technical fit and integration feasibility</div>
+              <div class="exp-bullet">Established vendor evaluation frameworks and integration standards</div>
+            </div>
+            <div class="exp-tags">
+              <span class="exp-tag">OAuth 2.0</span>
+              <span class="exp-tag">Partner Solutions</span>
+              <span class="exp-tag">Insurance Tech</span>
+              <span class="exp-tag">API Design</span>
+            </div>
+            <div class="view-detail-hint">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Click to view integration map
+            </div>
+          </div>
+        </div>
+
+        <!-- TruStage -->
+        <div class="exp-card" onclick="openPanel('trustage')">
+          <div class="company-logo-wrap">
+            <img src="logo-trustage.png" alt="TruStage" onerror="this.parentNode.innerHTML='<span style=\'color:var(--accent)\'>TS</span>'">
+          </div>
+          <div class="exp-body">
+            <div class="exp-top">
+              <div>
+                <div class="exp-role">Senior Software Engineer / Integration Consultant</div>
+                <div class="exp-company"><a href="https://www.trustage.com/" target="_blank" rel="noopener" class="company-link" onclick="event.stopPropagation()">TruStage</a></div>
+              </div>
+              <div class="exp-meta">
+                <span class="exp-dates">Feb 2020 – Dec 2023</span>
+              </div>
+            </div>
+            <div class="exp-bullets">
+              <div class="exp-bullet">Architected end-to-end auto lending platform integration enabling real-time system orchestration</div>
+              <div class="exp-bullet">Built REST and webhook APIs connecting loan underwriting to downstream fulfillment and compliance</div>
+              <div class="exp-bullet">Coordinated LOS migrations including Symitar SymConnect → SymXchange transitions</div>
+            </div>
+            <div class="exp-tags">
+              <span class="exp-tag">REST / Webhooks</span>
+              <span class="exp-tag">Auto Lending</span>
+              <span class="exp-tag">LOS Integration</span>
+              <span class="exp-tag">API Gateway</span>
+            </div>
+            <div class="view-detail-hint">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Click to view integration map
+            </div>
+          </div>
+        </div>
+
+        <!-- FIS -->
+        <div class="exp-card" onclick="openPanel('fis')">
+          <div class="company-logo-wrap">
+            <img src="logo-fis.svg" alt="FIS" onerror="this.parentNode.innerHTML='<span style=\'color:var(--accent)\'>FIS</span>'">
+          </div>
+          <div class="exp-body">
+            <div class="exp-top">
+              <div>
+                <div class="exp-role">NA Lending Dev Manager / Senior Developer & Team Lead</div>
+                <div class="exp-company"><a href="https://www.fisglobal.com/" target="_blank" rel="noopener" class="company-link" onclick="event.stopPropagation()">FIS — Fidelity National Information Services</a></div>
+              </div>
+              <div class="exp-meta">
+                <span class="exp-dates">Feb 2014 – Feb 2020</span>
+              </div>
+            </div>
+            <div class="exp-bullets">
+              <div class="exp-bullet">Designed and launched API-driven consumer lending platform adopted by 50+ financial institutions</div>
+              <div class="exp-bullet">Architected integration patterns connecting lending platform to multiple LOS vendors and payment processors</div>
+              <div class="exp-bullet">Led team of engineers on core platform; mentored on integration architecture and API design</div>
+            </div>
+            <div class="exp-tags">
+              <span class="exp-tag">API-Driven Platform</span>
+              <span class="exp-tag">LOS Vendors</span>
+              <span class="exp-tag">Team Lead</span>
+              <span class="exp-tag">FinTech</span>
+            </div>
+            <div class="view-detail-hint">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Click to view integration map
+            </div>
+          </div>
+        </div>
+
+        <!-- Intuit -->
+        <div class="exp-card" onclick="openPanel('intuit')">
+          <div class="company-logo-wrap">
+            <img src="logo-intuit.png" alt="Intuit" onerror="this.parentNode.innerHTML='<span style=\'color:var(--accent)\'>IQ</span>'">
+          </div>
+          <div class="exp-body">
+            <div class="exp-top">
+              <div>
+                <div class="exp-role">Senior Software Engineer</div>
+                <div class="exp-company"><a href="https://www.intuit.com/" target="_blank" rel="noopener" class="company-link" onclick="event.stopPropagation()">Intuit — Intuit Financial Services</a></div>
+              </div>
+              <div class="exp-meta">
+                <span class="exp-dates">Mar 2008 – Jun 2010</span>
+              </div>
+            </div>
+            <div class="exp-bullets">
+              <div class="exp-bullet">Scaled lending integrations from initial launch to 50+ banking and financial services partners</div>
+              <div class="exp-bullet">Designed APIs and integration architecture for consumer lending division at IFS</div>
+              <div class="exp-bullet">Built partner-facing API documentation and integration standards that became multi-platform foundation</div>
+            </div>
+            <div class="exp-tags">
+              <span class="exp-tag">J2EE</span>
+              <span class="exp-tag">Partner APIs</span>
+              <span class="exp-tag">Banking Integrations</span>
+              <span class="exp-tag">Ruby/Watir</span>
+            </div>
+            <div class="view-detail-hint">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Click to view integration map
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div class="section" id="achievements">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" color="var(--accent)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div>
+          <div class="section-title">Key Achievements</div>
+          <div class="section-subtitle">Career-defining outcomes</div>
+        </div>
+      </div>
+      <div class="achievements-grid">
+        <div class="achievement-card">
+          <div class="achievement-icon">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="achievement-title">Scaled Lending Integrations to 100+ Clients</div>
+          <div class="achievement-body">Built and led a lending interface function supporting 100+ financial institutions across multiple LOS platforms — coordinating vendor integrations, data mapping, and production readiness from end to end.</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="achievement-title">Architected Auto Lending Platform Integration</div>
+          <div class="achievement-body">Led end-to-end integration between dynamic document platforms and core lending systems at TruStage, eliminating manual workflows and enabling real-time underwriting orchestration at scale.</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="achievement-title">Standard API-Driven Lending Platform at FIS</div>
+          <div class="achievement-body">Designed the responsive, API-powered lending application that became the standard integration path across multiple FIS LOS products—reducing custom onboarding effort for 50+ banks and credit unions.</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="achievement-title">Launched Partner Division & Integration Strategy</div>
+          <div class="achievement-body">Established the partner solutions function at One Inc from scratch—built vendor evaluation frameworks, integration playbooks, and security patterns (OAuth 2.0, SSH, digital signatures) that positioned the org for scaled partner adoption.</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="achievement-title">50+ Banking Partners at Intuit</div>
+          <div class="achievement-body">Grew IFS consumer lending integrations from initial partners to 50+ banking and financial services organizations—building the API documentation, standards, and onboarding guides that made that scale possible.</div>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          </div>
+          <div class="achievement-title">Reduced Implementation Rework at One Inc</div>
+          <div class="achievement-body">Improved API alignment, clarified technical requirements, and created reusable onboarding frameworks that measurably reduced implementation rework and shortened partner go-live timelines.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="section" id="skills">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" color="var(--accent)"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div>
+          <div class="section-title">Technical Skills</div>
+          <div class="section-subtitle">Stack and domain coverage</div>
+        </div>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-category">Integration & APIs</div>
+          <div class="skill-item"><span class="skill-dot"></span>REST APIs</div>
+          <div class="skill-item"><span class="skill-dot"></span>SOAP</div>
+          <div class="skill-item"><span class="skill-dot"></span>Webhooks</div>
+          <div class="skill-item"><span class="skill-dot"></span>GraphQL</div>
+          <div class="skill-item"><span class="skill-dot"></span>OAuth 2.0 / SSH</div>
+          <div class="skill-item"><span class="skill-dot"></span>API Gateways</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-category">Data & Formats</div>
+          <div class="skill-item"><span class="skill-dot"></span>XML / JSON</div>
+          <div class="skill-item"><span class="skill-dot"></span>ANSI X12</div>
+          <div class="skill-item"><span class="skill-dot"></span>SQL / PL/SQL</div>
+          <div class="skill-item"><span class="skill-dot"></span>ETL Pipelines</div>
+          <div class="skill-item"><span class="skill-dot"></span>Data Mapping</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-category">Architecture</div>
+          <div class="skill-item"><span class="skill-dot"></span>Microservices</div>
+          <div class="skill-item"><span class="skill-dot"></span>Event-driven Arch.</div>
+          <div class="skill-item"><span class="skill-dot"></span>Integration Patterns</div>
+          <div class="skill-item"><span class="skill-dot"></span>System Design</div>
+          <div class="skill-item"><span class="skill-dot"></span>API Design</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-category">Platforms & Tools</div>
+          <div class="skill-item"><span class="skill-dot"></span>MuleSoft Anypoint</div>
+          <div class="skill-item"><span class="skill-dot"></span>Retool</div>
+          <div class="skill-item"><span class="skill-dot"></span>Node.js</div>
+          <div class="skill-item"><span class="skill-dot"></span>Java / J2EE</div>
+          <div class="skill-item"><span class="skill-dot"></span>Ruby / Watir</div>
+          <div class="skill-item"><span class="skill-dot"></span>Unix Shell</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-category">Domain Expertise</div>
+          <div class="skill-item"><span class="skill-dot"></span>Loan Origination (LOS)</div>
+          <div class="skill-item"><span class="skill-dot"></span>Mortgage / PPE</div>
+          <div class="skill-item"><span class="skill-dot"></span>Insurance Platforms</div>
+          <div class="skill-item"><span class="skill-dot"></span>Payment Processing</div>
+          <div class="skill-item"><span class="skill-dot"></span>Credit Union Systems</div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-category">Partner Enablement</div>
+          <div class="skill-item"><span class="skill-dot"></span>Technical Documentation</div>
+          <div class="skill-item"><span class="skill-dot"></span>Partner Onboarding</div>
+          <div class="skill-item"><span class="skill-dot"></span>Implementation Support</div>
+          <div class="skill-item"><span class="skill-dot"></span>Playbook Development</div>
+          <div class="skill-item"><span class="skill-dot"></span>SLA Management</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="section" id="education">
+      <div class="section-header">
+        <div class="section-icon">
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" color="var(--accent)"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <div>
+          <div class="section-title">Education</div>
+        </div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-logo">
+          <img src="logo-csus.svg" alt="Sacramento State" style="width:100%;height:100%;object-fit:contain;padding:8px;" onerror="this.parentNode.textContent='CSUS'">
+        </div>
+        <div>
+          <div class="edu-school">California State University, Sacramento</div>
+          <div class="edu-degree">Bachelor of Science in Computer Science</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ===== OVERLAY ===== -->
+<div class="panel-overlay" id="overlay" onclick="closePanel()"></div>
+
+<!-- ===== DETAIL PANEL ===== -->
+<div class="detail-panel" id="detailPanel">
+  <button class="panel-close" onclick="closePanel()">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div id="panelContent"></div>
+</div>
+
+<script>
+// =========================================================
+// THEME
+// =========================================================
+function setTheme(t) {
+  document.body.setAttribute('data-theme', t);
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.t === t);
+  });
+  localStorage.setItem('rb-theme', t);
+}
+(function() {
+  const saved = localStorage.getItem('rb-theme') || 'arctic';
+  setTheme(saved);
+})();
+
+// =========================================================
+// SCROLL NAV
+// =========================================================
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.addEventListener('scroll', () => {
+  const sections = ['about','experience','achievements','skills','education'];
+  let active = sections[0];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 120) active = id;
+  });
+  document.querySelectorAll('.nav-link').forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + active);
+  });
+}, { passive: true });
+
+// =========================================================
+// COMPANY DATA
+// =========================================================
+const companies = {
+  polly: {
+    name: 'Polly',
+    sector: 'Mortgage Technology / Product & Pricing Engine (PPE)',
+    url: 'https://polly.io/',
+    logo: 'logo-polly.png',
+    logoFallback: 'PP',
+    role: 'API Integration & Documentation Lead',
+    dates: 'Sept 2025 – Present',
+    current: true,
+    description: 'Polly is a cloud-native Product & Pricing Engine (PPE) for the mortgage industry, helping lenders optimize loan pricing and automate capital markets workflows. At Polly, Rich owns the technical integration layer — connecting external POS, LOS, and CRM platforms to the core pricing engine while building the documentation that makes those integrations repeatable.',
+    mapTitle: 'Integration Ecosystem',
+    mapNodes: {
+      center: { label: 'Polly\nPPE', r: 32 },
+      outer: [
+        { label: 'POS\nSystems', angle: 0 },
+        { label: 'LOS\nPlatforms', angle: 60 },
+        { label: 'CRM\nSystems', angle: 120 },
+        { label: 'Customer\nSystems', angle: 180 },
+        { label: 'API\nDocs', angle: 240 },
+        { label: 'Integration\nStandards', angle: 300 },
+      ]
+    },
+    impact: [
+      { icon: '📋', text: 'Leading end-to-end integration design for POS, LOS, CRM, and customer system connections into Polly\'s pricing engine' },
+      { icon: '📄', text: 'Building and maintaining API documentation to reduce partner onboarding friction and accelerate integration cycles' },
+      { icon: '🔧', text: 'Establishing technical standards and patterns that govern how third-party platforms connect to Polly' },
+      { icon: '🤝', text: 'Collaborating with product and engineering on integration roadmap and developer experience improvements' },
+    ],
+    tech: ['REST APIs', 'Webhooks', 'API Documentation', 'POS/LOS Integration', 'Mortgage Tech', 'Integration Standards', 'Developer Experience']
+  },
+  paynearme: {
+    name: 'PayNearMe',
+    sector: 'Payments Technology',
+    url: 'https://home.paynearme.com/',
+    logo: 'logo-paynearme.png',
+    logoFallback: 'PNM',
+    role: 'Internal Solutions Consultant',
+    dates: 'Jan 2025 – Sept 2025',
+    description: 'PayNearMe is a payment technology platform serving lenders, government agencies, and regulated industries with digital payment solutions. Rich joined in a consulting capacity to evaluate and modernize internal onboarding workflows, applying integration design thinking to the internal tooling layer.',
+    mapTitle: 'Internal Systems Map',
+    mapNodes: {
+      center: { label: 'PayNearMe\nPlatform', r: 34 },
+      outer: [
+        { label: 'HR\nSystems', angle: 0 },
+        { label: 'IT\nInfra', angle: 72 },
+        { label: 'MuleSoft\nAnypoint', angle: 144 },
+        { label: 'Onboarding\nPlatforms', angle: 216 },
+        { label: 'Business\nWorkflows', angle: 288 },
+      ]
+    },
+    impact: [
+      { icon: '🔍', text: 'Evaluated third-party onboarding platforms against company requirements, recommending solution and implementation path' },
+      { icon: '🔗', text: 'Designed integrations between internal systems using MuleSoft Anypoint Platform' },
+      { icon: '🤝', text: 'Partnered with HR and IT stakeholders to align technical workflows with operational needs' },
+      { icon: '📐', text: 'Contributed to integration design discussions covering APIs, middleware, and system connectivity' },
+    ],
+    tech: ['MuleSoft Anypoint', 'Workflow Design', 'Internal Integrations', 'HR Tech', 'Middleware', 'Requirements Analysis']
+  },
+  oneinc: {
+    name: 'One Incorporated',
+    sector: 'InsurTech / Payment Platforms',
+    url: 'https://www.oneinc.com/',
+    logo: 'logo-oneinc.png',
+    logoFallback: '1',
+    role: 'Technical Integration Lead',
+    dates: 'Jan 2024 – Jun 2024',
+    description: 'One Inc provides digital payment and insurance platform solutions, connecting insurers with modern payment processing and policy management workflows. Rich led the creation of a new partner solutions function, evaluating insurance tech ecosystems and building the integration standards and security patterns needed for scaled partner adoption.',
+    mapTitle: 'Partner Solutions Architecture',
+    mapNodes: {
+      center: { label: 'One Inc\nPlatform', r: 32 },
+      outer: [
+        { label: 'Insurance\nUnderwriting', angle: 0 },
+        { label: 'Policy\nAdmin', angle: 60 },
+        { label: 'Payment\nProcessing', angle: 120 },
+        { label: 'OAuth 2.0\nSSH/Signing', angle: 180 },
+        { label: 'Partner\nPlaybooks', angle: 240 },
+        { label: 'Compliance\nSystems', angle: 300 },
+      ]
+    },
+    impact: [
+      { icon: '🏗️', text: 'Built strategy and roadmap for new partner solutions division from scratch, aligning insurance, underwriting, and payment ecosystems' },
+      { icon: '🔐', text: 'Introduced consistent security patterns across partner-facing platforms: OAuth 2.0, SSH, and digital signatures' },
+      { icon: '📋', text: 'Created integration playbooks and support documentation that improved handoffs between implementation and partner teams' },
+      { icon: '📉', text: 'Reduced implementation rework by improving API alignment, clarifying requirements, and building reusable onboarding frameworks' },
+    ],
+    tech: ['OAuth 2.0', 'SSH', 'Digital Signatures', 'Insurance Tech', 'Partner Onboarding', 'Integration Playbooks', 'Vendor Evaluation']
+  },
+  trustage: {
+    name: 'TruStage',
+    sector: 'Insurance & Credit Union Financial Services',
+    url: 'https://www.trustage.com/',
+    logo: 'logo-trustage.png',
+    logoFallback: 'TS',
+    role: 'Senior Software Engineer / Integration Consultant',
+    dates: 'Feb 2020 – Dec 2023',
+    description: 'TruStage (formerly CUNA Mutual Group) provides insurance and financial products to credit unions and their members. Rich worked at the intersection of lending technology and integration architecture—building API-driven connections between dynamic document platforms, LOS systems, and compliance infrastructure, including a flagship auto lending platform integration.',
+    mapTitle: 'Lending Integration Architecture',
+    mapNodes: {
+      center: { label: 'TruStage\nCore', r: 32 },
+      outer: [
+        { label: 'Auto Lending\nPlatform', angle: 0 },
+        { label: 'Document\nPlatform', angle: 51 },
+        { label: 'LOS\n(Symitar)', angle: 102 },
+        { label: 'Underwriting\nSystems', angle: 153 },
+        { label: 'Compliance\nPlatforms', angle: 204 },
+        { label: 'API\nGateway', angle: 255 },
+        { label: 'Fulfillment\nSystems', angle: 306 },
+      ]
+    },
+    impact: [
+      { icon: '🚗', text: 'Architected end-to-end auto lending platform integration enabling real-time system orchestration across core lending applications' },
+      { icon: '📡', text: 'Built REST and webhook-based APIs connecting loan underwriting systems to downstream fulfillment and compliance platforms' },
+      { icon: '🔄', text: 'Led LOS migration supporting Symitar SymConnect → SymXchange transitions, including partner certification efforts' },
+      { icon: '📊', text: 'Coordinated API gateway and orchestration platform deployment, working across product, implementation, and partner teams' },
+    ],
+    tech: ['REST APIs', 'Webhooks', 'API Gateway', 'Symitar/SymXchange', 'LOS Migration', 'Auto Lending', 'Orchestration', 'Compliance Integration']
+  },
+  fis: {
+    name: 'FIS',
+    sector: 'Financial Technology / Banking Infrastructure',
+    url: 'https://www.fisglobal.com/',
+    logo: 'logo-fis.svg',
+    logoFallback: 'FIS',
+    role: 'NA Lending Dev Manager / Senior Developer & Team Lead',
+    dates: 'Feb 2014 – Feb 2020',
+    description: 'FIS (Fidelity National Information Services) is one of the world\'s largest fintech providers, delivering core banking, payments, and lending technology to financial institutions globally. Rich\'s six-year tenure spanned individual contributor to development manager—building the API-driven consumer lending platform that became the standard origination experience across the FIS LOS product suite.',
+    mapTitle: 'Consumer Lending Platform Ecosystem',
+    mapNodes: {
+      center: { label: 'FIS Lending\nPlatform', r: 34 },
+      outer: [
+        { label: 'Banks &\nCredit Unions\n(50+)', angle: 0 },
+        { label: 'LOS\nVendors', angle: 51 },
+        { label: 'Payment\nProcessors', angle: 102 },
+        { label: 'Underwriting\nSystems', angle: 153 },
+        { label: 'Mobile/Web\nOrigination', angle: 204 },
+        { label: 'Partner\nOnboarding', angle: 255 },
+        { label: 'Dev\nTeam', angle: 306 },
+      ]
+    },
+    impact: [
+      { icon: '🏦', text: 'Designed and launched responsive, API-driven consumer lending platform adopted by 50+ financial institutions as the standard mobile/web origination experience' },
+      { icon: '🔌', text: 'Architected integration patterns connecting the lending platform to multiple LOS vendors, payment processors, and underwriting systems' },
+      { icon: '👥', text: 'Led team of developers on core platform features; mentored engineers on integration architecture and API design principles' },
+      { icon: '🚀', text: 'Established partner onboarding and support processes, providing technical guidance that reduced time-to-production' },
+    ],
+    tech: ['REST APIs', 'API Design', 'LOS Integration', 'Payment Processing', 'Mobile/Web Origination', 'Team Leadership', 'Partner Onboarding', 'Financial Services']
+  },
+  intuit: {
+    name: 'Intuit',
+    sector: 'Financial Software / Consumer Banking Technology',
+    url: 'https://www.intuit.com/',
+    logo: 'logo-intuit.png',
+    logoFallback: 'IQ',
+    role: 'Senior Software Engineer',
+    dates: 'Mar 2008 – Jun 2010',
+    description: 'Intuit Financial Services (IFS) was Intuit\'s banking technology division, providing consumer lending infrastructure to financial institutions. Rich joined early in his career and helped grow the lending integration ecosystem from its initial partners to a network of 50+ banking and fintech organizations.',
+    mapTitle: 'IFS Lending Integration Network',
+    mapNodes: {
+      center: { label: 'Intuit\nIFS Platform', r: 34 },
+      outer: [
+        { label: 'Banking\nPartners (50+)', angle: 0 },
+        { label: 'Fintech\nPartners', angle: 72 },
+        { label: 'J2EE\nMiddleware', angle: 144 },
+        { label: 'Partner API\nDocs', angle: 216 },
+        { label: 'Integration\nStandards', angle: 288 },
+      ]
+    },
+    impact: [
+      { icon: '📈', text: 'Scaled IFS consumer lending integrations from initial partners to 50+ banking and financial services organizations' },
+      { icon: '🏗️', text: 'Designed APIs and integration architecture for the IFS consumer lending division to enable bank and fintech partner connections' },
+      { icon: '📖', text: 'Built partner-facing API documentation and integration guides; supported partners through technical implementation and go-live' },
+      { icon: '📐', text: 'Established integration standards and best practices that became the foundation for the multi-platform lending ecosystem' },
+    ],
+    tech: ['J2EE', 'REST APIs', 'Partner API Documentation', 'Ruby', 'Watir', 'QA Automation', 'Unix Scripting', 'Consumer Lending']
+  }
+};
+
+// =========================================================
+// PANEL
+// =========================================================
+function buildMap(nodes) {
+  const cx = 240, cy = 110, outerR = 85;
+  const n = nodes.outer.length;
+  let svgH = 220;
+  let paths = '', oNodes = '';
+
+  nodes.outer.forEach((node, i) => {
+    const rad = (node.angle - 90) * Math.PI / 180;
+    const x = cx + outerR * Math.cos(rad);
+    const y = cy + outerR * Math.sin(rad);
+    // edge
+    paths += `<line class="map-edge" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}"/>`;
+    // node box
+    const lines = node.label.split('\n');
+    const bw = 70, bh = lines.length > 1 ? 32 : 22;
+    oNodes += `
+      <g transform="translate(${x-bw/2},${y-bh/2})">
+        <rect width="${bw}" height="${bh}" rx="6" fill="var(--bg3)" stroke="var(--border)" stroke-width="1"/>
+        ${lines.map((l,li) => `<text x="${bw/2}" y="${li===0 ? (lines.length>1?13:14) : 25}" text-anchor="middle" font-size="9" fill="var(--text2)" font-family="system-ui,sans-serif">${l}</text>`).join('')}
+      </g>`;
+  });
+
+  const centerLines = nodes.center.label.split('\n');
+  const centerEl = centerLines.map((l,li) =>
+    `<text x="${cx}" y="${cy + (li === 0 ? (centerLines.length>1?-5:5) : 9)}" text-anchor="middle" font-size="11" font-weight="700" fill="white" font-family="system-ui,sans-serif">${l}</text>`
+  ).join('');
+
+  return `<svg class="map-svg" viewBox="0 0 480 ${svgH}" xmlns="http://www.w3.org/2000/svg">
+    ${paths}
+    <circle cx="${cx}" cy="${cy}" r="${nodes.center.r}" fill="var(--accent)" opacity="0.9"/>
+    ${centerEl}
+    ${oNodes}
+  </svg>`;
+}
+
+function openPanel(key) {
+  const c = companies[key];
+  if (!c) return;
+
+  const impactHTML = c.impact.map(i => `
+    <div class="impact-item">
+      <div class="impact-icon" style="font-size:13px">${i.icon}</div>
+      <span>${i.text}</span>
+    </div>`).join('');
+
+  const techHTML = c.tech.map(t => `<span class="tech-pill">${t}</span>`).join('');
+
+  const mapHTML = buildMap(c.mapNodes);
+
+  document.getElementById('panelContent').innerHTML = `
+    <div class="panel-header">
+      <div class="panel-logo-row">
+        <div class="panel-logo">
+          <img src="${c.logo}" alt="${c.name}" onerror="this.parentNode.innerHTML='<span style=\\'color:var(--accent);font-size:1.1rem;font-weight:800\\'>${c.logoFallback}</span>'">
+        </div>
+        <div>
+          <div class="panel-company-name">${c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="company-link">${c.name}</a>` : c.name}</div>
+          <div class="panel-company-sector">${c.sector}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span class="panel-role-badge">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          ${c.role}
+        </span>
+        <span class="panel-dates-badge">${c.dates}${c.current ? ' <span style="color:var(--accent);margin-left:5px;font-weight:700">●</span>' : ''}</span>
+        ${c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="panel-website-btn"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> Website</a>` : ''}
+      </div>
+    </div>
+    <div class="panel-body">
+      <p class="panel-desc">${c.description}</p>
+
+      <div class="panel-section-title">${c.mapTitle}</div>
+      <div class="integration-map">${mapHTML}</div>
+
+      <div class="panel-section-title">Impact & Contributions</div>
+      <div class="impact-list">${impactHTML}</div>
+
+      <div class="panel-section-title">Technology & Methods</div>
+      <div class="tech-pills">${techHTML}</div>
+    </div>
+  `;
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detailPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detailPanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePanel();
+});
+</script>
+</body>
+</html>
