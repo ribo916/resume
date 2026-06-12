@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rich Boesch — Career Voyage</title>
+<style>
+  :root {
+    --parchment: #f1e2ba;
+    --parchment-deep: #e4cf9d;
+    --ink: #3b2a14;
+    --ink-soft: #6e5836;
+    --gold: #a3792c;
+    --gold-bright: #d4af4e;
+    --night: rgba(24, 26, 18, 0.85);
+    --chart-red: #aa3223;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; font-family: Georgia, "Times New Roman", serif; }
+  #scene { position: fixed; inset: 0; }
+  #scene canvas { display: block; }
+
+  /* ---------- HUD ---------- */
+  .hud { position: fixed; z-index: 10; pointer-events: none; }
+
+  #title-card {
+    top: 18px; left: 22px;
+    background: linear-gradient(180deg, var(--parchment), var(--parchment-deep));
+    border: 2px solid var(--gold);
+    outline: 1px solid rgba(60, 42, 16, 0.5);
+    outline-offset: 3px;
+    border-radius: 6px;
+    padding: 12px 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    max-width: 330px;
+  }
+  #title-card h1 { font-size: 19px; color: var(--ink); letter-spacing: 0.04em; }
+  #title-card h1::after {
+    content: ""; display: block;
+    height: 2px; margin-top: 5px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  #title-card p { font-size: 12.5px; color: var(--ink-soft); margin-top: 5px; line-height: 1.4; font-style: italic; }
+
+  #progress {
+    top: 18px; right: 22px;
+    background: var(--night);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  }
+  #progress .heart { color: rgba(255,255,255,0.25); margin-right: 2px; }
+  #progress .heart.full { color: #e03e3e; text-shadow: 0 0 6px rgba(224,62,62,0.6); }
+  #progress .heart-count { color: var(--gold-bright); font-size: 12px; margin-left: 8px; letter-spacing: 0.06em; }
+
+  #help {
+    bottom: 18px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--night);
+    border: 1px solid rgba(212, 175, 78, 0.55);
+    color: #efe6c8;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    transition: opacity 1.2s ease;
+    white-space: nowrap;
+  }
+  #help.fade { opacity: 0; }
+  #help kbd {
+    background: var(--gold); color: #1d1607;
+    border-radius: 4px; padding: 1px 7px;
+    font-family: inherit; font-size: 12px; font-weight: bold;
+  }
+
+  /* ---------- Minimap (sea chart) ---------- */
+  #minimap {
+    position: fixed; z-index: 10;
+    bottom: 18px; right: 18px;
+    width: 192px; height: 150px;
+    background: #e9d7a8;
+    border: 3px solid #5c4322;
+    outline: 1px solid var(--gold-bright);
+    outline-offset: -6px;
+    border-radius: 4px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    cursor: crosshair;
+  }
+  #minimap-hint {
+    position: fixed; z-index: 10;
+    bottom: 174px; right: 18px;
+    width: 192px;
+    text-align: center;
+    font-size: 10.5px; font-style: italic;
+    color: #efe6c8;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    pointer-events: none;
+  }
+
+  /* ---------- Dock prompt (action button) ---------- */
+  #dock-prompt {
+    position: fixed; z-index: 11;
+    bottom: 64px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--night);
+    border: 2px solid var(--gold-bright);
+    border-radius: 999px;
+    padding: 11px 22px;
+    font-size: 15px; color: #f3ead0;
+    letter-spacing: 0.03em;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 18px rgba(212,175,78,0.25);
+    cursor: pointer;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  #dock-prompt.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+  #dock-prompt:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.45), 0 0 26px rgba(212,175,78,0.5); }
+  #dock-prompt strong { color: var(--gold-bright); }
+  #dock-prompt kbd {
+    display: inline-block;
+    background: var(--gold-bright); color: #1d1607;
+    border-radius: 50%; width: 24px; height: 24px;
+    line-height: 24px; text-align: center;
+    font-size: 13px; font-weight: bold;
+    font-family: inherit;
+    margin-left: 6px;
+  }
+
+  /* ---------- Details panel (quest log) ---------- */
+  #panel {
+    position: fixed; z-index: 20;
+    top: 0; right: 0; height: 100%;
+    width: min(430px, 92vw);
+    background:
+      linear-gradient(180deg, rgba(120, 86, 40, 0.08), rgba(120, 86, 40, 0) 60px),
+      linear-gradient(180deg, var(--parchment), #ecd9ab);
+    border-left: 3px solid var(--gold);
+    box-shadow: -8px 0 30px rgba(0,0,0,0.45);
+    transform: translateX(105%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  #panel.open { transform: translateX(0); }
+  #panel-accent { height: 7px; flex: none; background: #888; }
+  .panel-body { padding: 26px 28px 34px; }
+  #panel-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 34px; height: 34px;
+    border: 2px solid var(--gold); border-radius: 50%;
+    background: transparent; color: var(--gold);
+    font-size: 17px; line-height: 1; cursor: pointer;
+    font-family: inherit;
+  }
+  #panel-close:hover { background: var(--gold); color: var(--parchment); }
+  #panel-name {
+    font-size: 27px; color: var(--ink); margin-top: 4px;
+    letter-spacing: 0.03em;
+  }
+  #panel-name::after {
+    content: ""; display: block;
+    height: 2px; margin-top: 7px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+  #panel-role { font-size: 15px; color: var(--ink); font-weight: 600; margin-top: 9px; }
+  #panel-dates { font-size: 13px; color: var(--ink-soft); margin-top: 3px; font-style: italic; }
+  #panel-sector {
+    font-size: 11.5px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-top: 10px;
+    font-weight: bold;
+  }
+  #panel-summary { font-size: 14px; line-height: 1.6; color: var(--ink); margin-top: 14px; }
+  .panel-h {
+    font-size: 15px; color: var(--ink); margin: 22px 0 8px;
+    letter-spacing: 0.05em;
+  }
+  .panel-h::before { content: "◆ "; color: var(--gold); font-size: 11px; vertical-align: 2px; }
+  #panel-highlights { padding-left: 20px; }
+  #panel-highlights li { font-size: 13.5px; line-height: 1.55; color: var(--ink); margin-bottom: 7px; }
+  #panel-highlights li::marker { color: var(--gold); }
+  #panel-tech { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag {
+    background: rgba(163, 121, 44, 0.16);
+    border: 1px solid rgba(163, 121, 44, 0.45);
+    color: var(--ink);
+    border-radius: 999px; padding: 4px 12px; font-size: 12px;
+  }
+  .panel-foot { margin-top: 26px; font-size: 12px; color: var(--ink-soft); font-style: italic; }
+</style>
+</head>
+<body>
+  <div id="scene"></div>
+
+  <div class="hud" id="title-card">
+    <h1 id="hud-name">Career Voyage</h1>
+    <p id="hud-sub"></p>
+  </div>
+  <div class="hud" id="progress">Islands visited: 0 / 0</div>
+  <div class="hud" id="help">
+    Click a pier to dock &nbsp;·&nbsp; click the sea to sail &nbsp;·&nbsp; <kbd>WASD</kbd> to steer &nbsp;·&nbsp; <kbd>E</kbd> to dock &nbsp;·&nbsp; scroll to zoom
+  </div>
+
+  <div id="dock-prompt">⚓ Dock at <strong id="dock-prompt-name"></strong> <kbd>E</kbd></div>
+
+  <div id="minimap-hint">Click map to sail</div>
+  <canvas id="minimap" width="384" height="300"></canvas>
+
+  <aside id="panel">
+    <div id="panel-accent"></div>
+    <button id="panel-close" title="Set sail (Esc)">✕</button>
+    <div class="panel-body">
+      <h2 id="panel-name"></h2>
+      <div id="panel-role"></div>
+      <div id="panel-dates"></div>
+      <div id="panel-sector"></div>
+      <p id="panel-summary"></p>
+      <h3 class="panel-h">Highlights</h3>
+      <ul id="panel-highlights"></ul>
+      <h3 class="panel-h">Tech &amp; Focus</h3>
+      <div id="panel-tech"></div>
+      <p class="panel-foot">Close this panel (or press Esc) to set sail again.</p>
+    </div>
+  </aside>
+
+  <script src="three.min.js"></script>
+  <script>
+    // fallback to CDN if the local copy is missing
+    if (typeof THREE === "undefined")
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+  </script>
+  <script src="voyage-data.js"></script>
+  <script>
+    // populate title card from data
+    (function () {
+      var p = VOYAGE_DATA.player;
+      document.getElementById("hud-name").textContent = p.name + " — Career Voyage";
+      document.getElementById("hud-sub").textContent = p.title + ". " + p.subtitle;
+    })();
+  </script>
+  <script src="voyage-engine.js"></script>
+</body>
+</html>
