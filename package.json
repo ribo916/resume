@@ -1,0 +1,12 @@
+{
+  "name": "resume-site-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright tests for the resume site (the site itself has no build step).",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

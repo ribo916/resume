@@ -33,10 +33,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Remove dev tooling from publish artifact
+        # The site is a pure static build; strip test-only files so they aren't
+        # served publicly. Operates on the CI checkout only — does not touch the repo.
+        run: rm -rf tests node_modules package.json package-lock.json playwright.config.js
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
+          # Upload entire repository (minus the dev tooling removed above)
           path: '.'
       - name: Deploy to GitHub Pages
         id: deployment

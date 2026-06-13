@@ -11,6 +11,7 @@ https://ribo916.github.io/resume/
 | `web/` | Interactive web resume (dark-themed, multi-section; hand-written HTML, legacy) |
 | `voyage/` | 3D sailing game resume (documented below) |
 | `pdf/` | PDF resume placeholder |
+| `tests/` | Playwright e2e specs (dev-only; see Testing & deploy below) |
 
 **Resume content has one source of truth: `shared/resume-data.js`.** It defines a
 global `RESUME_DATA` (player + chronological `roles[]`) as a classic script. Every
@@ -28,6 +29,21 @@ not yet read `RESUME_DATA`. Retrofitting it is a separate future task.)
    content via `../shared/resume-data.js`; that one external dependency is expected.
 2. The published URL `…/resume/voyage/` must keep working (or a redirect added).
    If a task seems to require breaking either, stop and ask.
+
+## Testing & deploy
+
+The site itself has **no build step** — the only Node in the repo is the test
+tooling. Playwright e2e specs live in `tests/` (run `npm test`; first time:
+`npm install && npx playwright install chromium`). They run against a local HTTP
+server across desktop + mobile viewports and cover all four experiences. See the
+README "Testing" section for details. `node_modules/` and test artifacts are
+gitignored.
+
+Deploy is `.github/workflows/static.yml` (GitHub Pages, on push to `master`). It
+serves the repo as static files, but **strips the dev tooling**
+(`tests/ node_modules package.json package-lock.json playwright.config.js`) from
+the CI copy before upload, so only the real site ships. When adding dev-only files
+that shouldn't be published, add them to that `rm -rf` step too.
 
 ---
 

@@ -53,10 +53,45 @@ Use a server rather than opening files directly: the landing page and voyage loa
 (The voyage still also works opened directly via `file://`, but the local server
 is the simplest way to run everything.)
 
+## Testing
+
+End-to-end tests live in `tests/` and run with [Playwright](https://playwright.dev/)
+against a real local HTTP server (so they exercise the actual deployed paths,
+including the shared-data loads). WebGL is enabled for the voyage's 3D scene.
+
+First-time setup:
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+Run the suite (desktop + mobile viewports):
+
+```bash
+npm test                 # all tests
+npx playwright test --headed          # watch them run in a browser
+npx playwright show-report            # open the HTML report after a run
+```
+
+What's covered: landing page (load, shared-data wiring, responsive layout,
+no JS errors), the voyage (WebGL boot, all 7 islands, docking + panel content
+matching the data), the web resume (content, theme switcher, navigation), and
+the PDF placeholder. The test tooling (`node_modules`, `package.json`,
+`playwright.config.js`) is the only Node in the repo — the site itself still has
+no build step.
+
 ## Deploying
 
-Push to `master`. GitHub Actions deploys the entire repo root to GitHub Pages
-automatically via `.github/workflows/static.yml`.
+Push to `master`. GitHub Actions publishes to GitHub Pages automatically via
+`.github/workflows/static.yml`. There is no build step — Pages just serves the
+static HTML/JS as-is.
+
+The workflow strips the dev-only tooling (`tests/`, `node_modules/`,
+`package.json`, `package-lock.json`, `playwright.config.js`) from the CI copy
+right before upload, so only the real site is published. That cleanup runs
+against the ephemeral CI checkout — your repo is untouched, and `npm test` keeps
+working locally.
 
 ## Experiences
 
