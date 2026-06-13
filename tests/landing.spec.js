@@ -38,12 +38,13 @@ test.describe('Landing page', () => {
     await expect(page.locator('#r-linkedin')).toHaveAttribute('href', 'https://' + player.linkedin);
   });
 
-  test('all three experience cards link to their subdirectories', async ({ page }) => {
+  test('all experience cards link to their subdirectories', async ({ page }) => {
     await page.goto('/');
     const cards = page.locator('.grid .card');
-    await expect(cards).toHaveCount(3);
+    await expect(cards).toHaveCount(4);
     await expect(page.locator('.card[href="web/"]')).toBeVisible();
     await expect(page.locator('.card[href="voyage/"]')).toBeVisible();
+    await expect(page.locator('.card[href="farm/"]')).toBeVisible();
     await expect(page.locator('.card[href="pdf/"]')).toBeVisible();
   });
 
@@ -61,10 +62,12 @@ test.describe('Landing page', () => {
       // mobile: cards stacked — each below the previous
       expect(boxes[1].y).toBeGreaterThan(boxes[0].y);
       expect(boxes[2].y).toBeGreaterThan(boxes[1].y);
+      expect(boxes[3].y).toBeGreaterThan(boxes[2].y);
     } else {
-      // desktop: first row shares a top edge (3-up)
+      // desktop: 2×2 grid — each row shares a top edge, row 2 sits below row 1
       expect(Math.abs(boxes[0].y - boxes[1].y)).toBeLessThan(2);
-      expect(Math.abs(boxes[1].y - boxes[2].y)).toBeLessThan(2);
+      expect(Math.abs(boxes[2].y - boxes[3].y)).toBeLessThan(2);
+      expect(boxes[2].y).toBeGreaterThan(boxes[0].y);
     }
   });
 });

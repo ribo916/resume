@@ -70,10 +70,10 @@
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
     width: 100%;
-    max-width: 800px;
+    max-width: 720px;
   }
 
   .card {
@@ -112,6 +112,7 @@
   .card:nth-child(1) { animation: fadeUp 0.55s ease 0.5s  forwards; }
   .card:nth-child(2) { animation: fadeUp 0.55s ease 0.62s forwards; }
   .card:nth-child(3) { animation: fadeUp 0.55s ease 0.74s forwards; }
+  .card:nth-child(4) { animation: fadeUp 0.55s ease 0.86s forwards; }
 
   .card-icon  { font-size: 24px; margin-bottom: 14px; line-height: 1; }
   .card-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
@@ -144,10 +145,6 @@
     footer      { margin-top: 40px; }
   }
 
-  @media (min-width: 641px) and (max-width: 860px) {
-    .grid { grid-template-columns: repeat(2, 1fr); }
-    .card:nth-child(3) { grid-column: 1 / -1; max-width: 50%; justify-self: center; }
-  }
 </style>
 </head>
 <body>
@@ -173,6 +170,12 @@
     <div class="card-title">Career Voyage</div>
     <div class="card-desc">Sail a 3D world and dock at each career stop to read highlights and tech.</div>
     <div class="card-cta">Set sail <span class="arrow">→</span></div>
+  </a>
+  <a class="card" href="farm/">
+    <div class="card-icon">🌾</div>
+    <div class="card-title">Career Valley</div>
+    <div class="card-desc">Walk a Stardew-style farm valley and visit each farm to harvest highlights and tech.</div>
+    <div class="card-cta">Start farming <span class="arrow">→</span></div>
   </a>
   <a class="card" href="pdf/">
     <div class="card-icon">📄</div>

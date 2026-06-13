@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rich Boesch — Career Valley</title>
+<style>
+  :root {
+    /* Stardew-ish cozy palette: warm wood, parchment, fields */
+    --wood:        #6b4a2b;
+    --wood-dark:   #4a3119;
+    --wood-light:  #8a6239;
+    --panel-bg:    #fff4d6;
+    --panel-bg2:   #f3e3b8;
+    --ink:         #3b2a14;
+    --ink-soft:    #715a36;
+    --leaf:        #5a8f3c;
+    --leaf-bright: #8fce5b;
+    --gold:        #e0a93b;
+    --gold-deep:   #b9852a;
+    --sky:         #8fd0e8;
+    --night:       rgba(40, 28, 14, 0.86);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; overflow: hidden;
+    font-family: "Trebuchet MS", "Segoe UI", Verdana, sans-serif;
+    background: #2c1d0e;
+  }
+  /* crisp pixels — no smoothing on the game canvas */
+  #game { position: fixed; inset: 0; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+
+  .hud { position: fixed; z-index: 10; }
+
+  /* wooden-sign look shared by HUD cards */
+  .sign {
+    background: linear-gradient(180deg, var(--wood-light), var(--wood));
+    border: 3px solid var(--wood-dark);
+    border-radius: 8px;
+    box-shadow: 0 4px 0 var(--wood-dark), 0 8px 16px rgba(0,0,0,0.35);
+    color: #fdf3da;
+  }
+
+  #title-card {
+    top: 16px; left: 16px;
+    padding: 11px 16px;
+    max-width: 340px;
+    pointer-events: none;
+  }
+  #title-card h1 { font-size: 18px; letter-spacing: 0.02em; text-shadow: 1px 1px 0 var(--wood-dark); }
+  #title-card p  { font-size: 12.5px; margin-top: 5px; line-height: 1.45; color: #f0dcae; font-style: italic; }
+
+  #progress {
+    top: 16px; right: 16px;
+    padding: 9px 14px;
+    font-size: 14px;
+    pointer-events: none;
+  }
+  #progress .crop { color: rgba(255,255,255,0.28); margin-right: 1px; font-size: 15px; }
+  #progress .crop.full { color: var(--leaf-bright); text-shadow: 0 0 6px rgba(143,206,91,0.7); }
+  #progress .crop-count { color: var(--gold); font-size: 12px; margin-left: 8px; letter-spacing: 0.05em; }
+
+  #music-toggle {
+    top: 70px; right: 16px;
+    padding: 7px 13px;
+    font-size: 12.5px;
+    cursor: pointer;
+    pointer-events: auto;
+    user-select: none;
+    transition: transform 0.08s;
+  }
+  #music-toggle:active { transform: translateY(2px); }
+
+  #help {
+    bottom: 16px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--night);
+    border: 2px solid var(--gold-deep);
+    color: #f6e9c8;
+    border-radius: 8px;
+    padding: 9px 18px;
+    font-size: 13px;
+    transition: opacity 1.2s ease;
+    white-space: nowrap;
+    pointer-events: none;
+    max-width: 94vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  #help.fade { opacity: 0; }
+  #help kbd {
+    background: var(--gold); color: #3b2a14;
+    border-radius: 4px; padding: 1px 7px;
+    font-family: inherit; font-size: 12px; font-weight: bold;
+  }
+
+  /* minimap — a hand-drawn valley map */
+  #minimap {
+    position: fixed; z-index: 10;
+    bottom: 16px; right: 16px;
+    width: 196px; height: 116px;
+    background: #d8b877;
+    border: 3px solid var(--wood-dark);
+    border-radius: 6px;
+    box-shadow: 0 4px 0 var(--wood-dark), 0 6px 16px rgba(0,0,0,0.4);
+    cursor: crosshair;
+    image-rendering: pixelated;
+  }
+  #minimap-hint {
+    position: fixed; z-index: 10;
+    bottom: 138px; right: 16px;
+    width: 196px; text-align: center;
+    font-size: 10.5px; font-style: italic;
+    color: #f6e9c8;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    pointer-events: none;
+  }
+
+  /* visit prompt — wooden action button */
+  #visit-prompt {
+    position: fixed; z-index: 11;
+    bottom: 60px; left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    background: linear-gradient(180deg, var(--wood-light), var(--wood));
+    border: 3px solid var(--wood-dark);
+    border-radius: 999px;
+    padding: 11px 22px;
+    font-size: 15px; color: #fdf3da;
+    box-shadow: 0 4px 0 var(--wood-dark), 0 8px 18px rgba(0,0,0,0.45);
+    cursor: pointer;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+  #visit-prompt.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+  #visit-prompt strong { color: var(--gold); }
+  #visit-prompt kbd {
+    display: inline-block;
+    background: var(--gold); color: #3b2a14;
+    border-radius: 50%; width: 24px; height: 24px;
+    line-height: 24px; text-align: center;
+    font-size: 13px; font-weight: bold; font-family: inherit;
+    margin-left: 6px;
+  }
+
+  /* details panel — a quest-log / shipping-bin note */
+  #panel {
+    position: fixed; z-index: 20;
+    top: 0; right: 0; height: 100%;
+    width: min(440px, 93vw);
+    background:
+      linear-gradient(180deg, rgba(120, 86, 40, 0.10), rgba(120, 86, 40, 0) 64px),
+      linear-gradient(180deg, var(--panel-bg), var(--panel-bg2));
+    border-left: 4px solid var(--wood);
+    box-shadow: -8px 0 30px rgba(0,0,0,0.45);
+    transform: translateX(106%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  #panel.open { transform: translateX(0); }
+  #panel-accent { height: 8px; flex: none; background: #888; }
+  .panel-body { padding: 26px 28px 36px; }
+  #panel-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 34px; height: 34px;
+    border: 3px solid var(--wood); border-radius: 8px;
+    background: transparent; color: var(--wood);
+    font-size: 16px; line-height: 1; cursor: pointer; font-family: inherit;
+  }
+  #panel-close:hover { background: var(--wood); color: var(--panel-bg); }
+  #panel-name { font-size: 26px; color: var(--ink); margin-top: 4px; letter-spacing: 0.01em; }
+  #panel-name::after {
+    content: ""; display: block; height: 3px; margin-top: 7px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold-deep), transparent);
+  }
+  #panel-role  { font-size: 15px; color: var(--ink); font-weight: 700; margin-top: 9px; }
+  #panel-dates { font-size: 13px; color: var(--ink-soft); margin-top: 3px; font-style: italic; }
+  #panel-sector {
+    font-size: 11.5px; color: var(--gold-deep); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-top: 10px; font-weight: bold;
+  }
+  #panel-summary { font-size: 14px; line-height: 1.6; color: var(--ink); margin-top: 14px; }
+  .panel-h { font-size: 15px; color: var(--ink); margin: 22px 0 8px; letter-spacing: 0.03em; }
+  .panel-h::before { content: "🌱 "; font-size: 13px; vertical-align: 1px; }
+  #panel-highlights { padding-left: 20px; }
+  #panel-highlights li { font-size: 13.5px; line-height: 1.55; color: var(--ink); margin-bottom: 7px; }
+  #panel-highlights li::marker { color: var(--gold-deep); }
+  #panel-tech { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag {
+    background: rgba(90, 143, 60, 0.16);
+    border: 1px solid rgba(90, 143, 60, 0.5);
+    color: var(--ink);
+    border-radius: 999px; padding: 4px 12px; font-size: 12px;
+  }
+  .panel-foot { margin-top: 26px; font-size: 12px; color: var(--ink-soft); font-style: italic; }
+
+  @media (max-width: 640px) {
+    #title-card { max-width: 64vw; padding: 9px 12px; }
+    #title-card h1 { font-size: 15px; }
+    #title-card p  { font-size: 11px; }
+    #minimap { width: 132px; height: 80px; }
+    #minimap-hint { width: 132px; bottom: 100px; }
+    #help { font-size: 11px; padding: 7px 12px; bottom: 12px; }
+  }
+</style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div class="hud sign" id="title-card">
+    <h1 id="hud-name">Career Valley</h1>
+    <p id="hud-sub"></p>
+  </div>
+  <div class="hud sign" id="progress">Farms visited: 0 / 0</div>
+  <div class="hud sign" id="music-toggle">🔇 Music: off</div>
+
+  <div class="hud" id="help">
+    <kbd>WASD</kbd> / arrows to walk &nbsp;·&nbsp; click the ground to walk there &nbsp;·&nbsp; <kbd>E</kbd> to visit a farm
+  </div>
+
+  <div id="visit-prompt">🌾 Visit <strong id="visit-prompt-name"></strong> <kbd>E</kbd></div>
+
+  <div id="minimap-hint">Click map to travel</div>
+  <canvas id="minimap" width="392" height="232"></canvas>
+
+  <aside id="panel">
+    <div id="panel-accent"></div>
+    <button id="panel-close" title="Back to the valley (Esc)">✕</button>
+    <div class="panel-body">
+      <h2 id="panel-name"></h2>
+      <div id="panel-role"></div>
+      <div id="panel-dates"></div>
+      <div id="panel-sector"></div>
+      <p id="panel-summary"></p>
+      <h3 class="panel-h">Highlights</h3>
+      <ul id="panel-highlights"></ul>
+      <h3 class="panel-h">Crops &amp; Tools</h3>
+      <div id="panel-tech"></div>
+      <p class="panel-foot">Close this note (or press Esc) to head back out to the valley.</p>
+    </div>
+  </aside>
+
+  <script src="../shared/resume-data.js"></script>
+  <script src="farm-data.js"></script>
+  <script>
+    // populate the title card from data
+    (function () {
+      var p = FARM_DATA.player;
+      document.getElementById("hud-name").textContent = p.name + " — Career Valley";
+      document.getElementById("hud-sub").textContent = p.title + ". " + p.subtitle;
+    })();
+  </script>
+  <script src="farm-engine.js"></script>
+</body>
+</html>
