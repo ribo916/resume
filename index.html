@@ -155,8 +155,8 @@
 <canvas id="bg"></canvas>
 
 <header>
-  <h1>Rich Boesch</h1>
-  <p class="tagline">API Integration &amp; Documentation Lead &nbsp;·&nbsp; Folsom, CA</p>
+  <h1 id="r-name">Rich Boesch</h1>
+  <p class="tagline" id="r-tagline">API Integration &amp; Documentation Lead &nbsp;·&nbsp; Folsom, CA</p>
 </header>
 
 <p class="choose">Choose your experience</p>
@@ -183,11 +183,26 @@
 </div>
 
 <footer>
-  <a href="mailto:richard.boesch@gmail.com">richard.boesch@gmail.com</a>
+  <a id="r-email" href="mailto:richard.boesch@gmail.com">richard.boesch@gmail.com</a>
   &nbsp;·&nbsp;
-  <a href="https://linkedin.com/in/rboesch" target="_blank">LinkedIn</a>
+  <a id="r-linkedin" href="https://linkedin.com/in/rboesch" target="_blank">LinkedIn</a>
 </footer>
 
+<script src="shared/resume-data.js"></script>
+<script>
+  /* populate header/footer from the shared resume data */
+  (function () {
+    if (typeof RESUME_DATA === 'undefined') return; // graceful fallback to static text
+    const p = RESUME_DATA.player;
+    document.getElementById('r-name').textContent = p.name;
+    document.getElementById('r-tagline').innerHTML =
+      p.title + ' &nbsp;·&nbsp; ' + p.location;
+    const email = document.getElementById('r-email');
+    email.textContent = p.email;
+    email.href = 'mailto:' + p.email;
+    document.getElementById('r-linkedin').href = 'https://' + p.linkedin;
+  })();
+</script>
 <script>
 (function () {
   const canvas = document.getElementById('bg');

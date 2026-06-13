@@ -7,16 +7,25 @@ https://ribo916.github.io/resume/
 | Path | What it is |
 |------|-----------|
 | `index.html` | Landing page — links to all experiences |
-| `web/` | Interactive web resume (dark-themed, multi-section) |
+| `shared/` | Cross-experience assets. `resume-data.js` = canonical resume content (`RESUME_DATA`) |
+| `web/` | Interactive web resume (dark-themed, multi-section; hand-written HTML, legacy) |
 | `voyage/` | 3D sailing game resume (documented below) |
 | `pdf/` | PDF resume placeholder |
 
-Each experience is self-contained — no cross-imports, no shared assets.
-Do not apply voyage conventions to other experiences, and vice versa.
+**Resume content has one source of truth: `shared/resume-data.js`.** It defines a
+global `RESUME_DATA` (player + chronological `roles[]`) as a classic script. Every
+experience reads from it, so editing a fact once updates all of them. An experience
+keeps its own *presentation* (layout, colors, theme) and may override a content
+field for its own voice — but never forks the facts. Each experience's mechanics
+stay self-contained to its folder; only content is shared.
+
+(Exception: `web/` is a legacy monolith with content baked into its HTML — it does
+not yet read `RESUME_DATA`. Retrofitting it is a separate future task.)
 
 **Voyage invariants (always preserve):**
-1. The four voyage files stay together in `voyage/` with their relative paths
-   intact (classic scripts, file://-safe, no build step).
+1. Voyage's engine/mechanics stay self-contained in `voyage/` with relative paths
+   intact (classic scripts, file://-safe, no build step). Voyage reads shared
+   content via `../shared/resume-data.js`; that one external dependency is expected.
 2. The published URL `…/resume/voyage/` must keep working (or a redirect added).
    If a task seems to require breaking either, stop and ask.
 
@@ -30,18 +39,25 @@ with role, highlights, and tech. Live at https://ribo916.github.io/resume/voyage
 
 ## Architecture (the one rule that matters)
 
-**Content and engine are strictly separated. Keep it that way.**
+**Content, presentation, and engine are strictly separated. Keep it that way.**
 
 | File | Purpose | Edit when |
 |------|---------|-----------|
-| `voyage-data.js` | ALL resume content: islands, roles, highlights, tech tags, colors, positions, dock radius. Plain JS object (`VOYAGE_DATA`), documented in its header comment. | Resume changes |
+| `../shared/resume-data.js` | Canonical resume CONTENT (`RESUME_DATA`): player + `roles[]` (name, role, dates, sector, summary, highlights, tech). Shared by all experiences. | Resume facts change |
+| `voyage-data.js` | Voyage PRESENTATION (`VOYAGE_PRESENTATION`): per-island color, position, size, dockRadius, subtitle, optional content overrides. Merges shared content into the `VOYAGE_DATA` object the engine reads. | Voyage visuals/layout |
 | `voyage-engine.js` | All game mechanics: scene, boat physics, docking, minimap, avatar, UI wiring. Reads everything from `VOYAGE_DATA`. | Behavior/visual changes |
-| `index.html` | Shell + all CSS (parchment/gold theme). Loads three.min.js → data → engine as classic scripts. | UI styling changes |
+| `index.html` | Shell + all CSS (parchment/gold theme). Loads three.min.js → shared data → voyage data → engine as classic scripts. | UI styling changes |
 | `three.min.js` | Vendored Three.js r128 (global `THREE`, not modules). CDN fallback exists in index.html. | Never |
 
+`voyage-data.js` builds `VOYAGE_DATA` (unchanged shape) by merging
+`RESUME_DATA.roles` with per-island presentation — so the engine is untouched by
+the content/presentation split. To change resume facts edit the shared file; to
+change how the voyage looks/feels edit `voyage-data.js`.
+
 No build step, no server needed — opens directly via file:// (this is why scripts
-are classic, not ES modules; don't convert them). Deploys as static files;
-GitHub Pages serves it as-is on push.
+are classic, not ES modules; don't convert them). The `../shared/resume-data.js`
+relative path is file://-safe. Deploys as static files; GitHub Pages serves it
+as-is on push.
 
 ## Engine conventions and gotchas (learned the hard way)
 
@@ -87,15 +103,20 @@ GitHub Pages serves it as-is on push.
 Validation approach that worked: headless Chromium (Playwright) against the
 file:// URL with `--enable-unsafe-swiftshader` for WebGL; assert on DOM state
 (`#panel.open`, `#dock-prompt.show`, panel content) and take screenshots for
-visual checks. `node --check` both JS files after every edit.
+visual checks. `node --check` the JS files (`../shared/resume-data.js`,
+`voyage-data.js`, `voyage-engine.js`) after every edit.
 
 ## Common tasks
 
-- **Update resume content:** edit `voyage-data.js` only. Island fields are
-  documented in its header. Order of the `islands` array = course order.
-- **Add an island:** append to `islands` with a `position` continuing the
-  west→east line (keep ~30 units spacing) and a unique `id`.
+- **Update resume content** (role, dates, summary, highlights, tech): edit
+  `../shared/resume-data.js` only. Order of `roles[]` = course order, oldest→newest.
+  This also updates every other experience.
+- **Add an island:** add the role to `RESUME_DATA.roles` (shared), then add a
+  matching `VOYAGE_PRESENTATION.islands[<id>]` entry in `voyage-data.js` with a
+  `position` continuing the west→east line (~30 units spacing), `color`, `size`.
+- **Give the voyage its own wording for a field:** add that field (e.g. `sector`,
+  `summary`) to the island's entry in `voyage-data.js` — it overrides shared.
 - **Change theme colors:** CSS vars at the top of `index.html`
   (`--parchment`, `--gold`, `--night`, etc.).
-- **Tune feel:** `state.maxSpeed`, turn rate (1.8), and `dockRadius`
-  (in voyage-data.js).
+- **Tune feel:** `state.maxSpeed`, turn rate (1.8) in `voyage-engine.js`, and
+  `dockRadius` (in `voyage-data.js`).
