@@ -1,21 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Clean resume/document icon -->
-  
-  <!-- Document background -->
-  <rect x="15" y="12" width="70" height="76" rx="3" fill="#2c3e50" stroke="#1a1f2e" stroke-width="1.5"/>
-  
-  <!-- Document fold corner -->
-  <polygon points="80,12 80,30 62,12" fill="#34495e"/>
-  
-  <!-- Header line (darker) -->
-  <rect x="20" y="22" width="60" height="6" fill="#1a1f2e" rx="1"/>
-  
-  <!-- Content lines -->
-  <rect x="20" y="34" width="55" height="3" fill="#5d6d7b" rx="1"/>
-  <rect x="20" y="41" width="50" height="2.5" fill="#5d6d7b" rx="1"/>
-  <rect x="20" y="47" width="48" height="2.5" fill="#5d6d7b" rx="1"/>
-  
-  <rect x="20" y="56" width="55" height="3" fill="#5d6d7b" rx="1"/>
-  <rect x="20" y="63" width="52" height="2.5" fill="#5d6d7b" rx="1"/>
-  <rect x="20" y="69" width="50" height="2.5" fill="#5d6d7b" rx="1"/>
+  <!-- Bold R monogram -->
+  <text x="50" y="75" font-family="Arial, sans-serif" font-size="80" font-weight="900" fill="#2c3e50" text-anchor="middle" dominant-baseline="middle">R</text>
 </svg>
